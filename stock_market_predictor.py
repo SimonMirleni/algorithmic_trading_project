@@ -56,3 +56,29 @@ predictions = backtest(sp500, model, predictors)
 
 print(precision_score(predictions["Target"], predictions["Predictions"]))
 print(predictions["Target"].value_counts() / predictions.shape[0])
+
+horizons = [2,5,60,250,1000]
+new_predictors = []
+for horizon in horizons:
+    rolling_averages = sp500.rolling(horizon).mean()
+
+    ratio_column = f"Close_Ratio_{horizon}"
+    sp500[ratio_column] = sp500["Close"] / rolling_averages["Close"]
+    trend_column = f"Trend_{horizon}"
+    sp500[trend_column] = sp500.shift(1).rolling(horizon).sum()["Target"]
+    new_predictors += [ratio_column, trend_column]
+
+sp500.dropna()
+new_model = RandomForestClassifier(n_estimators=200, min_samples_split=50, random_state=1)
+def predict(train, test, predictors, model):
+    model.fit(train[predictors], train["Target"])
+    preds = model.predict_proba(test[predictors])[:,1]
+    preds[preds >=.6] = 1
+    preds[preds <.6] = 0
+    preds = pd.Series(preds, index=test.index, name="Predictions")
+    combined = pd.concat([test["Target"], preds], axis=1)
+    return combined
+
+predictions = backtest(sp500,model,new_predictors)
+
+print(precision_score(predictions["Target"], predictions["Predictions"]))
