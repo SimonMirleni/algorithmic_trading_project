@@ -27,7 +27,7 @@ python stock_prediction.py
 - `LICENSE`: Document indicating the project's license (MIT License).
 
 ## License
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
+This project is licensed under the MIT License. See the [LICENSE.txt](LICENSE.txt) file for details.
 
 ## Acknowledgments
 - The code is inspired by various machine learning tutorials and examples available online.
